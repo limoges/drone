@@ -44,8 +44,6 @@ enum { MOTOR_NONE, MOTOR_PWM_ONLY, MOTOR_LED_ONLY, MOTOR_PWM_LED };
 #define GPIO_ERROR_READ 176
 #define GPIO_ERROR_RESET 175
 
-//#define MOTOR_DRY_RUN // define this to skip the send of pwm commands to the motors (testing)
-
 typedef struct motor_struct {
 	uint16_t	pwm[4];   //motor speed 0x00-0x1ff
 	uint16_t	led[4];
@@ -57,5 +55,9 @@ typedef struct motor_struct {
 int MotorInit (MotorStruct *Motor);
 int MotorStart (void);
 int MotorStop (MotorStruct *Motor);
+
+void motor_send(MotorStruct *Motor, int SendMode);
+void setLEDs(uint16_t mot_filedesc, uint16_t led1, uint16_t led2, uint16_t led3,
+		uint8_t led4);
 
 #endif /* MOTOR_H_ */

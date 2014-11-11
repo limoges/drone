@@ -27,8 +27,7 @@
 
 #include <Sensor.h>
 
-//#define POLICY SCHED_RR
-#define POLICY SCHED_FIFO
+#define POLICY SCHED_RR
 #define THREADSTACK  65536
 
 enum { X_AXE, Y_AXE, Z_AXE };
