@@ -76,9 +76,7 @@ void *MavlinkStatusTask(void *ptr) {
 		Error[PITCH]     = DataD.Pitch - DataM.Pitch;
 		Error[YAW]       = DataD.Yaw - DataM.Yaw;
 		// Send Attitude
-//		mavlink_msg_attitude_pack(SYSTEM_ID, COMPONENT_ID, &msg, TimeStamp, (float) Error[ROLL], (float) Error[PITCH], (float) Error[YAW], (float) -Speed.Roll, (float) Speed.Pitch, (float) Speed.Yaw);
 		mavlink_msg_attitude_pack(SYSTEM_ID, COMPONENT_ID, &msg, TimeStamp, (float) Data.Roll, (float) Data.Pitch, (float) Data.Yaw, (float) Speed.Roll, (float) Speed.Pitch, (float) Speed.Yaw);
-//		mavlink_msg_attitude_pack(SYSTEM_ID, COMPONENT_ID, &msg, TimeStamp, (float) DataD.Roll, (float) DataD.Pitch, (float) DataD.Yaw, (float) Speed.Roll, (float) Speed.Pitch, (float) Speed.Yaw);
 		len = mavlink_msg_to_send_buffer(buf, &msg);
 		bytes_sent = sendto(Mavlink->sock, buf, len, 0, (struct sockaddr *)&Mavlink->gcAddr, sizeof(struct sockaddr_in));
 
@@ -124,8 +122,6 @@ void *MavlinkReceiveTask(void *ptr) {
 				Roll		= ((double)man_control.x/1000.0)*ROLL_MAX*M_PI/180.0;
 				Yaw			= -((double)man_control.r/1000.0)*YAW_MAX*M_PI/180.0;
 				Elevation	= HEIGHT_MAX*((double)man_control.z/1000.0);
-//printf("Thrust : %10.5lf  (%10.5lf) \n",Elevation, (double)man_control.z);
-printf("Roll : %10.5lf  Pitch : %10.5lf  Yaw : %10.5lf  Elevation : %10.5lf\n",Roll,  Pitch,  Yaw, Elevation);
 				Speed.Pitch	    = (Pitch - Data.Pitch)/TS;
 				Speed.Roll	    = (Roll - Data.Roll)/TS;
 				Speed.Yaw	    = (Yaw - Data.Yaw)/TS;
@@ -134,9 +130,6 @@ printf("Roll : %10.5lf  Pitch : %10.5lf  Yaw : %10.5lf  Elevation : %10.5lf\n",R
 				Data.Roll	    = Roll;
 				Data.Yaw	    = Yaw;
 				Data.Elevation  = Elevation;
-//printf("(x, y, r, z) =  %05d  %05d  %05d  %05d\n", man_control.x, man_control.y, man_control.r, man_control.z);
-//printf("(Pitch, Roll, Yaw, Height) =   %10.5lf  %10.5lf  %10.5lf  %10.5lf\n", Data.Pitch, Data.Roll, Data.Yaw, Data.Elevation);
-//printf("(DPitch, DRoll, DYaw, DHeight) =   %10.5lf  %10.5lf  %10.5lf  %10.5lf\n", Speed.Pitch, Speed.Roll, Speed.Yaw, Speed.Elevation);
 				pthread_spin_lock(&(AttitudeDesire->AttitudeLock));
 				memcpy((void *) &(AttitudeDesire->Data), (void *) &Data, sizeof(AttData));
 				memcpy((void *) &(AttitudeDesire->Speed), (void *) &Speed, sizeof(AttData));
@@ -162,7 +155,6 @@ int MavlinkInit(MavlinkStruct *Mavlink, AttitudeData *AttitudeDesire, AttitudeDa
 	Mavlink->AttitudeMesure = AttitudeMesure;
 
 	strcpy(Mavlink->target_ip, TargetIP);
-//printf("%s : IP = %s\n", __FUNCTION__, Mavlink->target_ip);
 	Mavlink->sock 		= socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 	memset((void *) &(Mavlink->locAddr), 0, sizeof(struct sockaddr_in));
 	Mavlink->locAddr.sin_family 	 = AF_INET;
@@ -178,7 +170,6 @@ int MavlinkInit(MavlinkStruct *Mavlink, AttitudeData *AttitudeDesire, AttitudeDa
 	} 
 
 	/* Attempt to make it non blocking */
-//	if ((retval = fcntl(Mavlink->sock, F_SETFL, O_NONBLOCK | FASYNC)) < 0) {
 	if ((retval = fcntl(Mavlink->sock, F_SETFL, fcntl(Mavlink->sock, F_GETFL) | O_ASYNC | O_NONBLOCK)) < 0) {
 		printf("%s : erreur ouverture non-bloquante", __FUNCTION__);
 		close(Mavlink->sock);
@@ -198,7 +189,6 @@ int MavlinkInit(MavlinkStruct *Mavlink, AttitudeData *AttitudeDesire, AttitudeDa
 	maxprio = sched_get_priority_max(POLICY);
 	pthread_attr_setschedpolicy(&attr, POLICY);
 	param.sched_priority = minprio + (maxprio - minprio)/4;
-//	param.sched_priority = minprio;
 	pthread_attr_setstacksize(&attr, THREADSTACK);
 	pthread_attr_setschedparam(&attr, &param);
 

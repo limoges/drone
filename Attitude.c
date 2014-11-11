@@ -118,7 +118,6 @@ int AttitudeInit (AttitudeStruct AttitudeTab[NUM_SENSOR]) {
 	maxprio = sched_get_priority_max(POLICY);
 	pthread_attr_setschedpolicy(&attr, POLICY);
 	param.sched_priority = minprio + (maxprio - minprio)/2;
-//	param.sched_priority = maxprio;
 	pthread_attr_setstacksize(&attr, THREADSTACK);
 	pthread_attr_setschedparam(&attr, &param);
 
@@ -130,8 +129,6 @@ int AttitudeInit (AttitudeStruct AttitudeTab[NUM_SENSOR]) {
 
 	return 0;
 }
-
-
 
 
 int AttitudeStart (void) {
